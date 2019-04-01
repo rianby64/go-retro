@@ -17,7 +17,7 @@ var (
 	ErrKeyExists = retro.NewStaticRetryableError(errors.New("error: key exists"), 5, 0)
 
 	// ErrGenNewKey is returned when for some strange reasons the uuid4 value returns an error
-	ErrGenNewKey = errors.New("error: data map was nil")
+	ErrGenNewKey = errors.New("error: failed to generate uuid")
 )
 
 // Stores all ints from 0-99 under random unique keys in a map
