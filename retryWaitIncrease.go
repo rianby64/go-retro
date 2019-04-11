@@ -16,6 +16,9 @@ type RetryWaitIncrease struct {
 	// Delay defines the amount of time between attempts
 	Delay time.Duration
 
+	// Execute defines the code to be wrapped under this strategy
+	Execute Execute
+
 	// DecideToRetry defines the function that states if execute the next attempt or not
 	DecideToRetry DecideToRetry
 
@@ -41,6 +44,13 @@ func (r *RetryWaitIncrease) increaseAttempt() error {
 	return nil
 }
 
+func (r *RetryWaitIncrease) getExecute() (Execute, error) {
+	if r.Execute == nil {
+		return nil, ErrorExecuteFunctionNil
+	}
+	return r.Execute, nil
+}
+
 func (r *RetryWaitIncrease) getRecovery() Recovery {
 	return r.Recovery
 }
@@ -50,7 +60,12 @@ func (r *RetryWaitIncrease) getDecideToRetry() DecideToRetry {
 }
 
 // Run the execute function and behaves according to the strategy
-func (r *RetryWaitIncrease) Run(execute Execute) error {
+func (r *RetryWaitIncrease) Run() error {
+	execute, err := r.getExecute()
+	if err != nil {
+		r.Error = err
+		return ErrorExecuteFunctionNotTouched
+	}
 	for {
 		err := r.increaseAttempt()
 		errExecute := execute()

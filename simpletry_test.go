@@ -12,12 +12,13 @@ func TestTryFnStrategyMaxAttempt(t *testing.T) {
 
 	strategy := Retry{
 		MaxAttempts: 5,
+		Execute: func() error {
+			currentAttempt++
+			return errExpected
+		},
 	}
 
-	errActual := strategy.Run(func() error {
-		currentAttempt++
-		return errExpected
-	})
+	errActual := strategy.Run()
 
 	if errActual != errExpected {
 		t.Error("fn returns an unexpected error")
@@ -39,12 +40,13 @@ func TestTryFnStrategyMaxAttemptWithDelay(t *testing.T) {
 	strategy := Retry{
 		MaxAttempts: 5,
 		Delay:       time.Millisecond * 100,
+		Execute: func() error {
+			currentAttempt++
+			return errExpected
+		},
 	}
 
-	errActual := strategy.Run(func() error {
-		currentAttempt++
-		return errExpected
-	})
+	errActual := strategy.Run()
 
 	endTime := time.Now()
 
@@ -73,15 +75,16 @@ func TestTryFnStrategyMaxAttemptWithDelayBelowMaxAttempts(t *testing.T) {
 	strategy := Retry{
 		MaxAttempts: 5,
 		Delay:       time.Millisecond * 100,
+		Execute: func() error {
+			currentAttempt++
+			if currentAttempt == StopAttempt {
+				return nil
+			}
+			return errExpected
+		},
 	}
 
-	errActual := strategy.Run(func() error {
-		currentAttempt++
-		if currentAttempt == StopAttempt {
-			return nil
-		}
-		return errExpected
-	})
+	errActual := strategy.Run()
 
 	endTime := time.Now()
 
