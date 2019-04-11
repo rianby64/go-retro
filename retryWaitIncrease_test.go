@@ -14,10 +14,10 @@ func TestTryRetryWaitIncreaseFnStrategyMaxAttemptZeroDelay(t *testing.T) {
 		MaxAttempts: 5,
 	}
 
-	errActual := Try(func() error {
+	errActual := strategy.Run(func() error {
 		currentAttempt++
 		return errExpected
-	}, &strategy)
+	})
 
 	if errActual != errExpected {
 		t.Error("fn returns an unexpected error")
@@ -40,7 +40,7 @@ func TestTryRetryWaitIncreaseFnStrategyMaxAttemptNonZeroDelay(t *testing.T) {
 	}
 	startTime := time.Now()
 
-	errActual := Try(func() error {
+	errActual := strategy.Run(func() error {
 		currentAttempt++
 		endTime := time.Now()
 		if endTime.Sub(startTime) < strategy.Delay*time.Duration(currentAttempt-1) {
@@ -48,7 +48,7 @@ func TestTryRetryWaitIncreaseFnStrategyMaxAttemptNonZeroDelay(t *testing.T) {
 		}
 		startTime = time.Now()
 		return errExpected
-	}, &strategy)
+	})
 
 	if errActual != errExpected {
 		t.Error("fn returns an unexpected error")
