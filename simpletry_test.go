@@ -6,19 +6,6 @@ import (
 	"time"
 )
 
-func TestSimplestTryFn(t *testing.T) {
-	executed := false
-
-	Try(func() error {
-		executed = true
-		return nil
-	})
-
-	if executed == false {
-		t.Error("fn not called")
-	}
-}
-
 func TestTryFnStrategyMaxAttempt(t *testing.T) {
 	currentAttempt := 0
 	errExpected := errors.New("expected error")
@@ -27,7 +14,7 @@ func TestTryFnStrategyMaxAttempt(t *testing.T) {
 		MaxAttempts: 5,
 	}
 
-	errActual := TryWithStrategy(func() error {
+	errActual := Try(func() error {
 		currentAttempt++
 		return errExpected
 	}, &strategy)
@@ -54,7 +41,7 @@ func TestTryFnStrategyMaxAttemptWithDelay(t *testing.T) {
 		Delay:       time.Millisecond * 100,
 	}
 
-	errActual := TryWithStrategy(func() error {
+	errActual := Try(func() error {
 		currentAttempt++
 		return errExpected
 	}, &strategy)
@@ -88,7 +75,7 @@ func TestTryFnStrategyMaxAttemptWithDelayBelowMaxAttempts(t *testing.T) {
 		Delay:       time.Millisecond * 100,
 	}
 
-	errActual := TryWithStrategy(func() error {
+	errActual := Try(func() error {
 		currentAttempt++
 		if currentAttempt == StopAttempt {
 			return nil
