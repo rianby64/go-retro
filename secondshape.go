@@ -8,10 +8,12 @@ import (
 // ErrorMaxAttemptsReached whatever
 var ErrorMaxAttemptsReached = errors.New("MaxAttempts reached")
 
+// ErrorDelayIsZero whatever
+var ErrorDelayIsZero = errors.New("Delay is zero")
+
 // Retryable whatever
 type Retryable interface {
-	getDelay() time.Duration
-	increaseDelay() time.Duration
+	increaseDelay() (time.Duration, error)
 	increaseAttempt() error
 }
 
@@ -28,8 +30,12 @@ func Try(fn Callback, retryable Retryable) error {
 				return errCallback
 			}
 
-			if retryable.getDelay() > 0 {
-				time.Sleep(retryable.increaseDelay())
+			duration, err := retryable.increaseDelay()
+			if err != nil {
+				return errCallback
+			}
+			if duration > 0 {
+				time.Sleep(duration)
 			}
 			continue
 		}

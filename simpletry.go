@@ -17,13 +17,9 @@ type Retry struct {
 	Delay time.Duration
 }
 
-func (r *Retry) getDelay() time.Duration {
-	return r.Delay
-}
-
-func (r *Retry) increaseDelay() time.Duration {
+func (r *Retry) increaseDelay() (time.Duration, error) {
 	r.currentDelay = r.Delay
-	return r.currentDelay
+	return r.currentDelay, nil
 }
 
 func (r *Retry) increaseAttempt() error {
