@@ -5,16 +5,19 @@ import (
 	"time"
 )
 
-// ErrorRecoveryFunctionError whatever
+// ErrorShouldRetryFunctionError occurs when ShouldRetry function returns false
+var ErrorShouldRetryFunctionError = errors.New("ShouldRetry returned false")
+
+// ErrorRecoveryFunctionError occurs when Recovery function returns an error
 var ErrorRecoveryFunctionError = errors.New("Recovery function finished with error")
 
-// ErrorExecuteFunctionNil whatever
+// ErrorExecuteFunctionNil occurs when Run() is executed without Execute function defined
 var ErrorExecuteFunctionNil = errors.New("Execute function has not beed defined")
 
-// ErrorMaxAttemptsReached whatever
+// ErrorMaxAttemptsReached occurs when the execute function was executed MaxAttempts times
 var ErrorMaxAttemptsReached = errors.New("MaxAttempts reached")
 
-// ErrorDelayIsZero whatever
+// ErrorDelayIsZero occurs as Delay is supposed to be > 0
 var ErrorDelayIsZero = errors.New("Delay is zero")
 
 // Execute function
@@ -23,11 +26,12 @@ type Execute func() error
 // Recovery function
 type Recovery func(error) error
 
-// DecideToRetry function
-type DecideToRetry func(error) bool
+// ShouldRetry function
+type ShouldRetry func(error) bool
 
 type strategy interface {
 	getExecute() (Execute, error)
+	getShouldRetry() ShouldRetry
 	getRecovery() Recovery
 	increaseAttempt() error
 	increaseDelay() (time.Duration, error)
@@ -53,6 +57,13 @@ func launcStrategy(s strategy) error {
 			if err != nil {
 				s.setError(err)
 				return errExecute
+			}
+			shouldRetry := s.getShouldRetry()
+			if shouldRetry != nil {
+				if shouldRetry(errExecute) == false {
+					s.setError(ErrorShouldRetryFunctionError)
+					return errExecute
+				}
 			}
 			if duration > 0 {
 				time.Sleep(duration)
