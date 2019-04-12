@@ -26,11 +26,14 @@ type RetryWaitIncrease struct {
 	Recovery Recovery
 }
 
+func (r *RetryWaitIncrease) setError(err error) {
+	r.Error = err
+}
+
 func (r *RetryWaitIncrease) increaseDelay() (time.Duration, error) {
 	r.currentDelay = r.Delay * time.Duration(r.currentAttempt)
 	if r.Delay == 0 {
-		r.Error = ErrorDelayIsZero
-		return 0, r.Error
+		return 0, ErrorDelayIsZero
 	}
 	return r.currentDelay, nil
 }
@@ -38,8 +41,7 @@ func (r *RetryWaitIncrease) increaseDelay() (time.Duration, error) {
 func (r *RetryWaitIncrease) increaseAttempt() error {
 	r.currentAttempt++
 	if r.currentAttempt >= r.MaxAttempts {
-		r.Error = ErrorMaxAttemptsReached
-		return r.Error
+		return ErrorMaxAttemptsReached
 	}
 	return nil
 }
@@ -61,29 +63,5 @@ func (r *RetryWaitIncrease) getDecideToRetry() DecideToRetry {
 
 // Run the execute function and behaves according to the strategy
 func (r *RetryWaitIncrease) Run() error {
-	execute, err := r.getExecute()
-	if err != nil {
-		r.Error = err
-		return ErrorExecuteFunctionNotTouched
-	}
-	for {
-		err := r.increaseAttempt()
-		errExecute := execute()
-		if errExecute != nil {
-			if err != nil {
-				return errExecute
-			}
-
-			duration, err := r.increaseDelay()
-			if err != nil {
-				return errExecute
-			}
-			if duration > 0 {
-				time.Sleep(duration)
-			}
-			continue
-		}
-		break
-	}
-	return nil
+	return launcStrategy(r)
 }
