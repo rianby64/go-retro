@@ -5,6 +5,9 @@ import (
 	"time"
 )
 
+// ErrorBanAttemptsReached occurs when the execute function was executed BanAttempts times
+var ErrorBanAttemptsReached = errors.New("BanAttempts reached")
+
 // ErrorShouldRetryFunctionError occurs when ShouldRetry function returns false
 var ErrorShouldRetryFunctionError = errors.New("ShouldRetry returned false")
 

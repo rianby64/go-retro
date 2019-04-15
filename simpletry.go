@@ -58,7 +58,7 @@ func (r *Retry) getShouldRetry() ShouldRetry {
 	return r.ShouldRetry
 }
 
-// Run the execute function and behaves according to the strategy
+// Run the execute function and behave according to the strategy
 func (r *Retry) Run() error {
 	return launcStrategy(r)
 }
