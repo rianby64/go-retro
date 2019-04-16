@@ -180,12 +180,30 @@ func TestTryFnStrategyCircuitBreakerWithoutBanTimeout(t *testing.T) {
 	}
 }
 
-func TestTryFnStrategyCircuitBreakerRunWithoutMaxAttempts(t *testing.T) {
+func TestTryFnStrategyCircuitBreakerWithoutMaxAttemps(t *testing.T) {
+	strategy := CircuitBreaker{
+		BanTimeout: time.Second,
+		Execute: func() error {
+			return nil
+		},
+	}
+
+	err := strategy.Run()
+	if err != nil {
+		t.Error("Expecting no error")
+	}
+	if strategy.Error != ErrorMaxAttemptsIsZero {
+		t.Error("strategy.Error expected to be ErrorMaxAttempsIsZero")
+	}
+}
+
+func TestTryFnStrategyCircuitBreakerRunMaxAttemptsEqualsTo1(t *testing.T) {
 	currentAttempt := 0
 	errExpected := errors.New("expected error")
 
 	strategy := CircuitBreaker{
-		BanTimeout: time.Millisecond * 100,
+		MaxAttempts: 1,
+		BanTimeout:  time.Millisecond * 100,
 		Execute: func() error {
 			currentAttempt++
 			return errExpected

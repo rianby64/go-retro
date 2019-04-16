@@ -20,11 +20,14 @@ var ErrorExecuteFunctionNil = errors.New("Execute function has not beed defined"
 // ErrorMaxAttemptsReached occurs when the execute function was executed MaxAttempts times
 var ErrorMaxAttemptsReached = errors.New("MaxAttempts reached")
 
+// ErrorMaxAttemptsIsZero occurs as Max Attempts is supposed to be > 0
+var ErrorMaxAttemptsIsZero = errors.New("Max Attempts is zero")
+
 // ErrorDelayIsZero occurs as Delay is supposed to be > 0
 var ErrorDelayIsZero = errors.New("Delay is zero")
 
-// ErrorBanTimeoutIsZero occurs as Delay is supposed to be > 0
-var ErrorBanTimeoutIsZero = errors.New("Delay is zero")
+// ErrorBanTimeoutIsZero occurs as Ban Timeout is supposed to be > 0
+var ErrorBanTimeoutIsZero = errors.New("Ban Timeout is zero")
 
 // Execute function
 type Execute func() error

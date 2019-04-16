@@ -74,7 +74,8 @@ func (r *CircuitBreaker) Run() (err error) {
 	}
 	r.lastTry = time.Now()
 	if r.MaxAttempts == 0 {
-		r.MaxAttempts = 1
+		r.setError(ErrorMaxAttemptsIsZero)
+		return r.lastError
 	}
 	if r.currentAttempt >= r.MaxAttempts {
 		err = ErrorBanAttemptsReached
