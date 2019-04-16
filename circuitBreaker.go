@@ -9,11 +9,11 @@ type CircuitBreaker struct {
 	Error     error
 	lastError error
 
-	currentAttempt int
-	BanTimeout     time.Duration
-	lastTry        time.Time
-	MaxAttempts    int
-	Delay          time.Duration
+	lastTry           time.Time
+	currentAttempt    int
+	currentBanTimeout time.Duration
+	BanTimeout        time.Duration
+	MaxAttempts       int
 
 	Execute     Execute
 	Recovery    Recovery
@@ -31,10 +31,6 @@ func (r *CircuitBreaker) getRecovery() Recovery {
 	return r.Recovery
 }
 
-func (r *CircuitBreaker) getShouldRetry() ShouldRetry {
-	return r.ShouldRetry
-}
-
 func (r *CircuitBreaker) increaseAttempt() error {
 	r.currentAttempt++
 	if r.currentAttempt >= r.MaxAttempts {
@@ -43,8 +39,12 @@ func (r *CircuitBreaker) increaseAttempt() error {
 	return nil
 }
 
-func (r *CircuitBreaker) increaseDelay() (time.Duration, error) {
-	return r.Delay, nil
+func (r *CircuitBreaker) increaseBanTimeout() (time.Duration, error) {
+	r.currentBanTimeout = r.BanTimeout
+	if r.BanTimeout == 0 {
+		return 0, ErrorBanTimeoutIsZero
+	}
+	return r.currentBanTimeout, nil
 }
 
 func (r *CircuitBreaker) setError(err error) {
@@ -54,14 +54,20 @@ func (r *CircuitBreaker) setError(err error) {
 // Run whatever
 func (r *CircuitBreaker) Run() (err error) {
 	var execute Execute
+	var currentBanTimeout time.Duration
 	execute, err = r.getExecute()
+	if err != nil {
+		r.setError(err)
+		return r.lastError
+	}
+	currentBanTimeout, err = r.increaseBanTimeout()
 	if err != nil {
 		r.setError(err)
 		return r.lastError
 	}
 	if !(r.lastTry.IsZero()) {
 		now := time.Now()
-		if now.Sub(r.lastTry) > r.BanTimeout {
+		if now.Sub(r.lastTry) > currentBanTimeout {
 			r.currentAttempt = 0
 			r.setError(nil)
 		}

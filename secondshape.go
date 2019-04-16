@@ -23,6 +23,9 @@ var ErrorMaxAttemptsReached = errors.New("MaxAttempts reached")
 // ErrorDelayIsZero occurs as Delay is supposed to be > 0
 var ErrorDelayIsZero = errors.New("Delay is zero")
 
+// ErrorBanTimeoutIsZero occurs as Delay is supposed to be > 0
+var ErrorBanTimeoutIsZero = errors.New("Delay is zero")
+
 // Execute function
 type Execute func() error
 
