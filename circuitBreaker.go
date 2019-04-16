@@ -51,6 +51,20 @@ func (r *CircuitBreaker) setError(err error) {
 	r.Error = err
 }
 
+func (r *CircuitBreaker) setLastError(err error) {
+	r.lastError = err
+}
+
+func (r *CircuitBreaker) getLastError() error {
+	return r.lastError
+}
+
+func (r *CircuitBreaker) resetState() {
+	r.currentAttempt = 0
+	r.currentBanTimeout = r.BanTimeout
+	r.setError(nil)
+}
+
 // Run whatever
 func (r *CircuitBreaker) Run() (err error) {
 	var execute Execute
@@ -58,12 +72,12 @@ func (r *CircuitBreaker) Run() (err error) {
 	execute, err = r.getExecute()
 	if err != nil {
 		r.setError(err)
-		return r.lastError
+		return r.getLastError()
 	}
 	currentBanTimeout, err = r.increaseBanTimeout()
 	if err != nil {
 		r.setError(err)
-		return r.lastError
+		return r.getLastError()
 	}
 	if !(r.lastTry.IsZero()) {
 		now := time.Now()
@@ -75,12 +89,12 @@ func (r *CircuitBreaker) Run() (err error) {
 	r.lastTry = time.Now()
 	if r.MaxAttempts == 0 {
 		r.setError(ErrorMaxAttemptsIsZero)
-		return r.lastError
+		return r.getLastError()
 	}
 	if r.currentAttempt >= r.MaxAttempts {
 		err = ErrorBanAttemptsReached
 		r.setError(err)
-		return r.lastError
+		return r.getLastError()
 	}
 	err = r.increaseAttempt()
 	if err != nil {
@@ -88,10 +102,8 @@ func (r *CircuitBreaker) Run() (err error) {
 	}
 	err = execute()
 	if err == nil {
-		r.currentAttempt = 0
-		r.currentBanTimeout = r.BanTimeout
-		r.setError(nil)
+		r.resetState()
 	}
-	r.lastError = err
-	return r.lastError
+	r.setLastError(err)
+	return r.getLastError()
 }
