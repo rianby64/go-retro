@@ -271,3 +271,97 @@ func TestTryFnStrategyCircuitBreakerRunMaxAttemptsEqualsTo1(t *testing.T) {
 		break
 	}
 }
+
+func TestTryFnStrategyCircuitBreakerRunResetAfterSuccess(t *testing.T) {
+	currentAttempt := 0
+	errExpected := errors.New("expected error")
+
+	strategy := CircuitBreaker{
+		MaxAttempts: 3,
+		BanTimeout:  time.Second * 100,
+		Execute: func() error {
+			currentAttempt++
+			if currentAttempt == 2 {
+				return nil
+			}
+			return errExpected
+		},
+	}
+
+	err := strategy.Run()
+	if err != errExpected {
+		t.Error("err != errExpected")
+	}
+	if strategy.Error != nil {
+		t.Error("strategy.Error != nil")
+	}
+	if currentAttempt != 1 {
+		t.Error("currentAttempt != 1")
+	}
+
+	err = strategy.Run()
+	if err != nil {
+		t.Error("err != errExpected")
+	}
+	if strategy.Error != nil {
+		t.Error("strategy.Error != nil")
+	}
+	if currentAttempt != 2 {
+		t.Error("currentAttempt != 2")
+	}
+
+	err = strategy.Run()
+	if err != errExpected {
+		t.Error("err != nil")
+	}
+	if strategy.Error != nil {
+		t.Error("strategy.Error != nil")
+	}
+	if currentAttempt != 3 {
+		t.Error("currentAttempt != 3")
+	}
+
+	err = strategy.Run()
+	if err != errExpected {
+		t.Error("err != nil")
+	}
+	if strategy.Error != nil {
+		t.Error("strategy.Error != nil")
+	}
+	if currentAttempt != 4 {
+		t.Error("currentAttempt != 4")
+	}
+
+	err = strategy.Run()
+	if err != errExpected {
+		t.Error("err != nil")
+	}
+	if strategy.Error != ErrorMaxAttemptsReached {
+		t.Error("strategy.Error != nil")
+	}
+	if currentAttempt != 5 {
+		t.Error("currentAttempt != 5")
+	}
+
+	err = strategy.Run()
+	if err != errExpected {
+		t.Error("err != nil")
+	}
+	if strategy.Error != ErrorBanAttemptsReached {
+		t.Error("strategy.Error != nil")
+	}
+	if currentAttempt != 5 {
+		t.Error("currentAttempt != 5")
+	}
+
+	err = strategy.Run()
+	if err != errExpected {
+		t.Error("err != nil")
+	}
+	if strategy.Error != ErrorBanAttemptsReached {
+		t.Error("strategy.Error != nil")
+	}
+	if currentAttempt != 5 {
+		t.Error("currentAttempt != 5")
+	}
+}

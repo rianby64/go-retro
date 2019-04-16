@@ -86,6 +86,12 @@ func (r *CircuitBreaker) Run() (err error) {
 	if err != nil {
 		r.setError(err)
 	}
-	r.lastError = execute()
+	err = execute()
+	if err == nil {
+		r.currentAttempt = 0
+		r.currentBanTimeout = r.BanTimeout
+		r.setError(nil)
+	}
+	r.lastError = err
 	return r.lastError
 }
