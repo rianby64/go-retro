@@ -1,6 +1,8 @@
 package retro
 
-import "time"
+import (
+	"time"
+)
 
 // CircuitBreaker strategy
 type CircuitBreaker struct {
@@ -32,7 +34,7 @@ func (r *CircuitBreaker) getShouldRetry() ShouldRetry {
 
 func (r *CircuitBreaker) increaseAttempt() error {
 	r.currentAttempt++
-	if r.currentAttempt > r.MaxAttempts {
+	if r.currentAttempt >= r.MaxAttempts {
 		return ErrorMaxAttemptsReached
 	}
 	return nil
@@ -49,7 +51,15 @@ func (r *CircuitBreaker) setError(err error) {
 // Run whatever
 func (r *CircuitBreaker) Run() (err error) {
 	var execute Execute
-	if r.currentAttempt > r.MaxAttempts {
+	if !(r.lastTry.IsZero()) {
+		now := time.Now()
+		if now.Sub(r.lastTry) > r.BanTimeout {
+			r.currentAttempt = 0
+			r.setError(nil)
+		}
+	}
+	r.lastTry = time.Now()
+	if r.currentAttempt >= r.MaxAttempts {
 		err = ErrorBanAttemptsReached
 		r.setError(err)
 		return r.lastError
@@ -57,7 +67,6 @@ func (r *CircuitBreaker) Run() (err error) {
 	err = r.increaseAttempt()
 	if err != nil {
 		r.setError(err)
-		return r.lastError
 	}
 	execute, err = r.getExecute()
 	if err != nil {
