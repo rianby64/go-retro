@@ -147,3 +147,18 @@ func TestTryFnStrategyCircuitBreakerRunAfterBan(t *testing.T) {
 		break
 	}
 }
+
+func TestTryFnStrategyCircuitBreakerWithoutExecuteFn(t *testing.T) {
+	strategy := CircuitBreaker{
+		MaxAttempts: 2,
+		BanTimeout:  time.Second * 1,
+	}
+
+	err := strategy.Run()
+	if err != nil {
+		t.Error("Expecting no error")
+	}
+	if strategy.Error != ErrorExecuteFunctionNil {
+		t.Error("strategy.Error expected to be ErrorExecuteFunctionNil")
+	}
+}

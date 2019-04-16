@@ -21,6 +21,9 @@ type CircuitBreaker struct {
 }
 
 func (r *CircuitBreaker) getExecute() (Execute, error) {
+	if r.Execute == nil {
+		return nil, ErrorExecuteFunctionNil
+	}
 	return r.Execute, nil
 }
 
@@ -51,6 +54,11 @@ func (r *CircuitBreaker) setError(err error) {
 // Run whatever
 func (r *CircuitBreaker) Run() (err error) {
 	var execute Execute
+	execute, err = r.getExecute()
+	if err != nil {
+		r.setError(err)
+		return r.lastError
+	}
 	if !(r.lastTry.IsZero()) {
 		now := time.Now()
 		if now.Sub(r.lastTry) > r.BanTimeout {
@@ -67,11 +75,6 @@ func (r *CircuitBreaker) Run() (err error) {
 	err = r.increaseAttempt()
 	if err != nil {
 		r.setError(err)
-	}
-	execute, err = r.getExecute()
-	if err != nil {
-		r.setError(err)
-		return r.lastError
 	}
 	r.lastError = execute()
 	return r.lastError
