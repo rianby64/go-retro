@@ -65,34 +65,37 @@ func (r *CircuitBreaker) resetState() {
 	r.setError(nil)
 }
 
+func (r *CircuitBreaker) handleTick() error {
+	if r.MaxAttempts == 0 {
+		return ErrorMaxAttemptsIsZero
+	}
+	currentBanTimeout, err := r.increaseBanTimeout()
+	if err != nil {
+		return err
+	}
+	if !(r.lastTry.IsZero()) {
+		now := time.Now()
+		if now.Sub(r.lastTry) > currentBanTimeout {
+			r.resetState()
+		}
+	}
+	r.lastTry = time.Now()
+	if r.currentAttempt >= r.MaxAttempts {
+		return ErrorBanAttemptsReached
+	}
+	return nil
+}
+
 // Run whatever
 func (r *CircuitBreaker) Run() (err error) {
 	var execute Execute
-	var currentBanTimeout time.Duration
 	execute, err = r.getExecute()
 	if err != nil {
 		r.setError(err)
 		return r.getLastError()
 	}
-	currentBanTimeout, err = r.increaseBanTimeout()
+	err = r.handleTick()
 	if err != nil {
-		r.setError(err)
-		return r.getLastError()
-	}
-	if !(r.lastTry.IsZero()) {
-		now := time.Now()
-		if now.Sub(r.lastTry) > currentBanTimeout {
-			r.currentAttempt = 0
-			r.setError(nil)
-		}
-	}
-	r.lastTry = time.Now()
-	if r.MaxAttempts == 0 {
-		r.setError(ErrorMaxAttemptsIsZero)
-		return r.getLastError()
-	}
-	if r.currentAttempt >= r.MaxAttempts {
-		err = ErrorBanAttemptsReached
 		r.setError(err)
 		return r.getLastError()
 	}
