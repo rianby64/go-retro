@@ -30,7 +30,7 @@ func (r *RetryWaitIncrease) setError(err error) {
 func (r *RetryWaitIncrease) increaseDelay() (time.Duration, error) {
 	r.currentDelay = r.Delay * time.Duration(r.currentAttempt)
 	if r.Delay == 0 {
-		return 0, ErrorDelayIsZero
+		return 0, ErrDelayIsZero
 	}
 	return r.currentDelay, nil
 }
@@ -38,14 +38,18 @@ func (r *RetryWaitIncrease) increaseDelay() (time.Duration, error) {
 func (r *RetryWaitIncrease) increaseAttempt() error {
 	r.currentAttempt++
 	if r.currentAttempt >= r.MaxAttempts {
-		return ErrorMaxAttemptsReached
+		return ErrMaxAttemptsReached
 	}
 	return nil
 }
 
+func (r *RetryWaitIncrease) setExecute(execute func() error) {
+	r.Execute = execute
+}
+
 func (r *RetryWaitIncrease) getExecute() (func() error, error) {
 	if r.Execute == nil {
-		return nil, ErrorExecuteFunctionNil
+		return nil, ErrExecuteFunctionNil
 	}
 	return r.Execute, nil
 }

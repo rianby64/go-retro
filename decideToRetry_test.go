@@ -69,8 +69,8 @@ func TestTryFnStrategyMaxAttemptWithShouldRetryFunctionTilSecondAttempt(t *testi
 	if strategy.Error == nil {
 		t.Error("strategy must hold an error")
 	}
-	if strategy.Error != ErrorShouldRetryFunctionError {
-		t.Error("strategy.error differs from ErrorShouldRetryFunctionError")
+	if strategy.Error != ErrShouldRetryFunctionError {
+		t.Error("strategy.error differs from ErrShouldRetryFunctionError")
 	}
 	if currentAttempt != 2 {
 		t.Error("currentAttempt differs from expected", currentAttempt)

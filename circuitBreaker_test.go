@@ -44,8 +44,8 @@ func TestTryFnStrategyCircuitBreaker(t *testing.T) {
 			if err != errExpected {
 				t.Error("err != errExpected")
 			}
-			if strategy.Error != ErrorMaxAttemptsReached {
-				t.Error("strategy.Error != ErrorMaxAttemptsReached")
+			if strategy.Error != ErrMaxAttemptsReached {
+				t.Error("strategy.Error != ErrMaxAttemptsReached")
 			}
 			if currentAttempt != 2 {
 				t.Error("currentAttempt != 2")
@@ -57,13 +57,13 @@ func TestTryFnStrategyCircuitBreaker(t *testing.T) {
 			break
 		}
 
-		// fourth, fifth and so on it should return errExpected strategy.ErrorBanAttemptsReached
-		// and ErrorMaxAttemptsReached as the strategy is Banned
+		// fourth, fifth and so on it should return errExpected strategy.ErrBanAttemptsReached
+		// and ErrMaxAttemptsReached as the strategy is Banned
 		if err != errExpected {
 			t.Error("err != errExpected")
 		}
-		if strategy.Error != ErrorBanAttemptsReached {
-			t.Error("strategy.Error != ErrorBanAttemptsReached")
+		if strategy.Error != ErrBanAttemptsReached {
+			t.Error("strategy.Error != ErrBanAttemptsReached")
 		}
 		if currentAttempt != 2 {
 			t.Error("currentAttempt != 2")
@@ -109,8 +109,8 @@ func TestTryFnStrategyCircuitBreakerRunAfterBan(t *testing.T) {
 			if err != errExpected {
 				t.Error("err != errExpected")
 			}
-			if strategy.Error != ErrorMaxAttemptsReached {
-				t.Error("strategy.Error != ErrorMaxAttemptsReached")
+			if strategy.Error != ErrMaxAttemptsReached {
+				t.Error("strategy.Error != ErrMaxAttemptsReached")
 			}
 			if currentAttempt != 2 {
 				t.Error("currentAttempt != 2")
@@ -118,13 +118,13 @@ func TestTryFnStrategyCircuitBreakerRunAfterBan(t *testing.T) {
 			continue
 		}
 
-		// fourth, fifth and so on it should return errExpected strategy.ErrorBanAttemptsReached
-		// and ErrorMaxAttemptsReached as the strategy is Banned
+		// fourth, fifth and so on it should return errExpected strategy.ErrBanAttemptsReached
+		// and ErrMaxAttemptsReached as the strategy is Banned
 		if err != errExpected {
 			t.Error("err != errExpected")
 		}
-		if strategy.Error != ErrorBanAttemptsReached {
-			t.Error("strategy.Error != ErrorBanAttemptsReached")
+		if strategy.Error != ErrBanAttemptsReached {
+			t.Error("strategy.Error != ErrBanAttemptsReached")
 		}
 		if currentAttempt != 2 {
 			t.Error("currentAttempt != 2")
@@ -158,8 +158,8 @@ func TestTryFnStrategyCircuitBreakerWithoutExecuteFn(t *testing.T) {
 	if err != nil {
 		t.Error("Expecting no error")
 	}
-	if strategy.Error != ErrorExecuteFunctionNil {
-		t.Error("strategy.Error expected to be ErrorExecuteFunctionNil")
+	if strategy.Error != ErrExecuteFunctionNil {
+		t.Error("strategy.Error expected to be ErrExecuteFunctionNil")
 	}
 }
 
@@ -175,8 +175,8 @@ func TestTryFnStrategyCircuitBreakerWithoutBanTimeout(t *testing.T) {
 	if err != nil {
 		t.Error("Expecting no error")
 	}
-	if strategy.Error != ErrorBanTimeoutIsZero {
-		t.Error("strategy.Error expected to be ErrorBanTimeoutIsZero")
+	if strategy.Error != ErrBanTimeoutIsZero {
+		t.Error("strategy.Error expected to be ErrBanTimeoutIsZero")
 	}
 }
 
@@ -192,8 +192,8 @@ func TestTryFnStrategyCircuitBreakerWithoutMaxAttemps(t *testing.T) {
 	if err != nil {
 		t.Error("Expecting no error")
 	}
-	if strategy.Error != ErrorMaxAttemptsIsZero {
-		t.Error("strategy.Error expected to be ErrorMaxAttempsIsZero")
+	if strategy.Error != ErrMaxAttemptsIsZero {
+		t.Error("strategy.Error expected to be ErrMaxAttemptsIsZero")
 	}
 }
 
@@ -222,7 +222,7 @@ func TestTryFnStrategyCircuitBreakerRunMaxAttemptsEqualsTo1(t *testing.T) {
 			if err != errExpected {
 				t.Error("err != errExpected")
 			}
-			if strategy.Error != ErrorMaxAttemptsReached {
+			if strategy.Error != ErrMaxAttemptsReached {
 				t.Error("strategy.Error != nil")
 			}
 			if currentAttempt != 1 {
@@ -231,13 +231,13 @@ func TestTryFnStrategyCircuitBreakerRunMaxAttemptsEqualsTo1(t *testing.T) {
 			continue
 		}
 
-		// fourth, fifth and so on it should return errExpected strategy.ErrorBanAttemptsReached
-		// and ErrorMaxAttemptsReached as the strategy is Banned
+		// fourth, fifth and so on it should return errExpected strategy.ErrBanAttemptsReached
+		// and ErrMaxAttemptsReached as the strategy is Banned
 		if err != errExpected {
 			t.Error("err != errExpected")
 		}
-		if strategy.Error != ErrorBanAttemptsReached {
-			t.Error("strategy.Error != ErrorBanAttemptsReached")
+		if strategy.Error != ErrBanAttemptsReached {
+			t.Error("strategy.Error != ErrBanAttemptsReached")
 		}
 		if currentAttempt != 1 {
 			t.Error("currentAttempt != 1")
@@ -250,8 +250,8 @@ func TestTryFnStrategyCircuitBreakerRunMaxAttemptsEqualsTo1(t *testing.T) {
 		if err != errExpected {
 			t.Error("err != errExpected")
 		}
-		if strategy.Error != ErrorMaxAttemptsReached {
-			t.Error("strategy.Error != ErrorMaxAttemptsReached")
+		if strategy.Error != ErrMaxAttemptsReached {
+			t.Error("strategy.Error != ErrMaxAttemptsReached")
 		}
 		if currentAttempt != 2 {
 			t.Error("currentAttempt != 2")
@@ -261,8 +261,8 @@ func TestTryFnStrategyCircuitBreakerRunMaxAttemptsEqualsTo1(t *testing.T) {
 		if err != errExpected {
 			t.Error("err != errExpected")
 		}
-		if strategy.Error != ErrorBanAttemptsReached {
-			t.Error("strategy.Error != ErrorBanAttemptsReached")
+		if strategy.Error != ErrBanAttemptsReached {
+			t.Error("strategy.Error != ErrBanAttemptsReached")
 		}
 		if currentAttempt != 2 {
 			t.Error("currentAttempt != 2")
@@ -336,7 +336,7 @@ func TestTryFnStrategyCircuitBreakerRunResetAfterSuccess(t *testing.T) {
 	if err != errExpected {
 		t.Error("err != nil")
 	}
-	if strategy.Error != ErrorMaxAttemptsReached {
+	if strategy.Error != ErrMaxAttemptsReached {
 		t.Error("strategy.Error != nil")
 	}
 	if currentAttempt != 5 {
@@ -347,7 +347,7 @@ func TestTryFnStrategyCircuitBreakerRunResetAfterSuccess(t *testing.T) {
 	if err != errExpected {
 		t.Error("err != nil")
 	}
-	if strategy.Error != ErrorBanAttemptsReached {
+	if strategy.Error != ErrBanAttemptsReached {
 		t.Error("strategy.Error != nil")
 	}
 	if currentAttempt != 5 {
@@ -358,7 +358,7 @@ func TestTryFnStrategyCircuitBreakerRunResetAfterSuccess(t *testing.T) {
 	if err != errExpected {
 		t.Error("err != nil")
 	}
-	if strategy.Error != ErrorBanAttemptsReached {
+	if strategy.Error != ErrBanAttemptsReached {
 		t.Error("strategy.Error != nil")
 	}
 	if currentAttempt != 5 {
@@ -366,19 +366,23 @@ func TestTryFnStrategyCircuitBreakerRunResetAfterSuccess(t *testing.T) {
 	}
 }
 
-func TestTryFnStrategyCircuitBreakerWithRecovery(t *testing.T) {
+func TestTryFnStrategyCircuitBreakerViaTry(t *testing.T) {
+	executed := false
 	strategy := CircuitBreaker{
 		MaxAttempts: 2,
-		Execute: func() error {
-			return nil
-		},
+		BanTimeout:  time.Second * 100,
 	}
 
-	err := strategy.Run()
+	err := Try(&strategy,
+		func() error {
+			executed = true
+			return nil
+		},
+	)
 	if err != nil {
 		t.Error("Expecting no error")
 	}
-	if strategy.Error != ErrorBanTimeoutIsZero {
-		t.Error("strategy.Error expected to be ErrorBanTimeoutIsZero")
+	if executed == false {
+		t.Error("executed expected to be true")
 	}
 }

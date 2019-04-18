@@ -35,14 +35,18 @@ func (r *Retry) increaseDelay() (time.Duration, error) {
 func (r *Retry) increaseAttempt() error {
 	r.currentAttempt++
 	if r.currentAttempt >= r.MaxAttempts {
-		return ErrorMaxAttemptsReached
+		return ErrMaxAttemptsReached
 	}
 	return nil
 }
 
+func (r *Retry) setExecute(execute func() error) {
+	r.Execute = execute
+}
+
 func (r *Retry) getExecute() (func() error, error) {
 	if r.Execute == nil {
-		return nil, ErrorExecuteFunctionNil
+		return nil, ErrExecuteFunctionNil
 	}
 	return r.Execute, nil
 }

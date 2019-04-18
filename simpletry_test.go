@@ -104,7 +104,7 @@ func TestTryFnStrategyMaxAttemptWithDelayBelowMaxAttempts(t *testing.T) {
 }
 
 func TestTryFnStrategyNoExecuteFunction(t *testing.T) {
-	errExpected := ErrorExecuteFunctionNil
+	errExpected := ErrExecuteFunctionNil
 
 	strategy := Retry{
 		MaxAttempts: 5,
@@ -118,7 +118,7 @@ func TestTryFnStrategyNoExecuteFunction(t *testing.T) {
 	if strategy.Error == nil {
 		t.Error("strategy must hold an error")
 	}
-	if strategy.Error != ErrorExecuteFunctionNil {
-		t.Error("currentError expected to be ErrorExecuteFunctionNil")
+	if strategy.Error != ErrExecuteFunctionNil {
+		t.Error("currentError expected to be ErrExecuteFunctionNil")
 	}
 }

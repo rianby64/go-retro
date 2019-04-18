@@ -5,31 +5,31 @@ import (
 	"time"
 )
 
-// ErrorBanAttemptsReached occurs when the execute function was executed BanAttempts times
-var ErrorBanAttemptsReached = errors.New("BanAttempts reached")
+// ErrBanAttemptsReached occurs when the execute function was executed BanAttempts times
+var ErrBanAttemptsReached = errors.New("BanAttempts reached")
 
-// ErrorShouldRetryFunctionError occurs when ShouldRetry function returns false
-var ErrorShouldRetryFunctionError = errors.New("ShouldRetry returned false")
+// ErrShouldRetryFunctionError occurs when ShouldRetry function returns false
+var ErrShouldRetryFunctionError = errors.New("ShouldRetry returned false")
 
-// ErrorRecoveryFunctionError occurs when Recovery function returns an error
-var ErrorRecoveryFunctionError = errors.New("Recovery function finished with error")
+// ErrRecoveryFunctionError occurs when Recovery function returns an error
+var ErrRecoveryFunctionError = errors.New("Recovery function finished with error")
 
-// ErrorExecuteFunctionNil occurs when Run() is executed without Execute function defined
-var ErrorExecuteFunctionNil = errors.New("Execute function has not beed defined")
+// ErrExecuteFunctionNil occurs when Run() is executed without Execute function defined
+var ErrExecuteFunctionNil = errors.New("Execute function has not beed defined")
 
-// ErrorMaxAttemptsReached occurs when the execute function was executed MaxAttempts times
-var ErrorMaxAttemptsReached = errors.New("MaxAttempts reached")
+// ErrMaxAttemptsReached occurs when the execute function was executed MaxAttempts times
+var ErrMaxAttemptsReached = errors.New("MaxAttempts reached")
 
-// ErrorMaxAttemptsIsZero occurs as Max Attempts is supposed to be > 0
-var ErrorMaxAttemptsIsZero = errors.New("Max Attempts is zero")
+// ErrMaxAttemptsIsZero occurs as Max Attempts is supposed to be > 0
+var ErrMaxAttemptsIsZero = errors.New("Max Attempts is zero")
 
-// ErrorDelayIsZero occurs as Delay is supposed to be > 0
-var ErrorDelayIsZero = errors.New("Delay is zero")
+// ErrDelayIsZero occurs as Delay is supposed to be > 0
+var ErrDelayIsZero = errors.New("Delay is zero")
 
-// ErrorBanTimeoutIsZero occurs as Ban Timeout is supposed to be > 0
-var ErrorBanTimeoutIsZero = errors.New("Ban Timeout is zero")
+// ErrBanTimeoutIsZero occurs as Ban Timeout is supposed to be > 0
+var ErrBanTimeoutIsZero = errors.New("Ban Timeout is zero")
 
-type strategy interface {
+type strategyRetry interface {
 	getExecute() (func() error, error)
 	getShouldRetry() func(error) bool
 	increaseAttempt() error
@@ -37,7 +37,7 @@ type strategy interface {
 	setError(error)
 }
 
-func launcStrategy(s strategy) error {
+func launcStrategy(s strategyRetry) error {
 	execute, err := s.getExecute()
 	if err != nil {
 		s.setError(err)
@@ -60,7 +60,7 @@ func launcStrategy(s strategy) error {
 			shouldRetry := s.getShouldRetry()
 			if shouldRetry != nil {
 				if shouldRetry(errExecute) == false {
-					s.setError(ErrorShouldRetryFunctionError)
+					s.setError(ErrShouldRetryFunctionError)
 					return errExecute
 				}
 			}
@@ -72,4 +72,16 @@ func launcStrategy(s strategy) error {
 		break
 	}
 	return nil
+}
+
+// Strategy whatever
+type Strategy interface {
+	setExecute(execute func() error)
+	Run() error
+}
+
+// Try whatever
+func Try(strategy Strategy, execute func() error) error {
+	strategy.setExecute(execute)
+	return strategy.Run()
 }
