@@ -17,13 +17,10 @@ type Retry struct {
 	Delay time.Duration
 
 	// Execute defines the code to be wrapped under this strategy
-	Execute Execute
+	Execute func() error
 
 	// ShouldRetry defines the function that states if execute the next attempt or not
-	ShouldRetry ShouldRetry
-
-	// Recovery defines the function that performs an extra code to help the next attempt to execute successful
-	Recovery Recovery
+	ShouldRetry func(error) bool
 }
 
 func (r *Retry) setError(err error) {
@@ -43,18 +40,14 @@ func (r *Retry) increaseAttempt() error {
 	return nil
 }
 
-func (r *Retry) getExecute() (Execute, error) {
+func (r *Retry) getExecute() (func() error, error) {
 	if r.Execute == nil {
 		return nil, ErrorExecuteFunctionNil
 	}
 	return r.Execute, nil
 }
 
-func (r *Retry) getRecovery() Recovery {
-	return r.Recovery
-}
-
-func (r *Retry) getShouldRetry() ShouldRetry {
+func (r *Retry) getShouldRetry() func(error) bool {
 	return r.ShouldRetry
 }
 

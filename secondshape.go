@@ -29,19 +29,9 @@ var ErrorDelayIsZero = errors.New("Delay is zero")
 // ErrorBanTimeoutIsZero occurs as Ban Timeout is supposed to be > 0
 var ErrorBanTimeoutIsZero = errors.New("Ban Timeout is zero")
 
-// Execute function
-type Execute func() error
-
-// Recovery function
-type Recovery func(error) error
-
-// ShouldRetry function
-type ShouldRetry func(error) bool
-
 type strategy interface {
-	getExecute() (Execute, error)
-	getShouldRetry() ShouldRetry
-	getRecovery() Recovery
+	getExecute() (func() error, error)
+	getShouldRetry() func(error) bool
 	increaseAttempt() error
 	increaseDelay() (time.Duration, error)
 	setError(error)
@@ -76,14 +66,6 @@ func launcStrategy(s strategy) error {
 			}
 			if duration > 0 {
 				time.Sleep(duration)
-			}
-			recover := s.getRecovery()
-			if recover != nil {
-				errRecovery := recover(errExecute)
-				if errRecovery != nil {
-					s.setError(ErrorRecoveryFunctionError)
-					return errRecovery
-				}
 			}
 			continue
 		}

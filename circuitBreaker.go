@@ -15,20 +15,15 @@ type CircuitBreaker struct {
 	BanTimeout        time.Duration
 	MaxAttempts       int
 
-	Execute     Execute
-	Recovery    Recovery
-	ShouldRetry ShouldRetry
+	Execute     func() error
+	ShouldRetry func(error) bool
 }
 
-func (r *CircuitBreaker) getExecute() (Execute, error) {
+func (r *CircuitBreaker) getExecute() (func() error, error) {
 	if r.Execute == nil {
 		return nil, ErrorExecuteFunctionNil
 	}
 	return r.Execute, nil
-}
-
-func (r *CircuitBreaker) getRecovery() Recovery {
-	return r.Recovery
 }
 
 func (r *CircuitBreaker) increaseAttempt() error {
@@ -88,7 +83,7 @@ func (r *CircuitBreaker) handleTick() error {
 
 // Run whatever
 func (r *CircuitBreaker) Run() (err error) {
-	var execute Execute
+	var execute func() error
 	execute, err = r.getExecute()
 	if err != nil {
 		r.setError(err)

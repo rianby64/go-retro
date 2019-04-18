@@ -365,3 +365,20 @@ func TestTryFnStrategyCircuitBreakerRunResetAfterSuccess(t *testing.T) {
 		t.Error("currentAttempt != 5")
 	}
 }
+
+func TestTryFnStrategyCircuitBreakerWithRecovery(t *testing.T) {
+	strategy := CircuitBreaker{
+		MaxAttempts: 2,
+		Execute: func() error {
+			return nil
+		},
+	}
+
+	err := strategy.Run()
+	if err != nil {
+		t.Error("Expecting no error")
+	}
+	if strategy.Error != ErrorBanTimeoutIsZero {
+		t.Error("strategy.Error expected to be ErrorBanTimeoutIsZero")
+	}
+}
